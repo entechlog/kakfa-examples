@@ -1,3 +1,4 @@
-*/kafka-connect/secrets/*.pem
-*/kafka-connect/secrets/*.pub
-*/kafka-connect/secrets/connect-secrets.properties
+*.pem
+*.pub
+*connect-secrets.properties
+*my_password.txt
