@@ -8,7 +8,7 @@ spec:
   image: entechlog/strimzi-kafka-connect:2
   version: 2.6.0
   replicas: 1
-  bootstrapServers: 192.168.1.15:39092
+  bootstrapServers: b-2.entechlog-dev-msk-clu.ywk1n4.c11.kafka.us-east-1.amazonaws.com:9092,b-1.entechlog-dev-msk-clu.ywk1n4.c11.kafka.us-east-1.amazonaws.com:9092
   config:
     group.id: strimzi-connect-cluster-custom-image
     offset.storage.topic: strimzi-connect-cluster-custom-image-offsets
