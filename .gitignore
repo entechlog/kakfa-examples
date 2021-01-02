@@ -2,3 +2,6 @@
 *.pub
 *connect-secrets.properties
 *my_password.txt
+logs
+__pycache__
+/**/docker/**/.env
