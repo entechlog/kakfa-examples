@@ -14,10 +14,10 @@ default_args = {
         'email_on_retry'        : False,
         'retries'               : 1,
         'retry_delay'           : timedelta(minutes=5),
-        'schedule_interval'     : '@hourly'
+        'schedule_interval'     : '*/15 * * * *' # Every 15 minutes
 }
 
-with DAG('weather-alert-source-data', default_args=default_args, schedule_interval='@hourly', catchup=False) as dag:
+with DAG('weather-alert-source-data', default_args=default_args, schedule_interval='*/15 * * * *', catchup=False) as dag:
         
         t1 = BashOperator(
                 task_id='print_start_time',
@@ -35,8 +35,8 @@ with DAG('weather-alert-source-data', default_args=default_args, schedule_interv
                         'bootstrap_servers': "broker:9092",
                         'schema_registry_url': "http://schema-registry:8081",
                         'topic_name': "weather.alert.app.source",
-                        'lat': "8.180770",
-                        'lon': "77.349777",
+                        'lat': "8.270272",
+                        'lon': "77.177274",
                         'OPEN_WEATHER_API_KEY': ""
                         }
         )

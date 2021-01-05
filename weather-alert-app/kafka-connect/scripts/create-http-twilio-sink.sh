@@ -5,7 +5,7 @@ curl -i -X PUT -H  "Content-Type:application/json" \
     -d '{
         "connector.class":"io.confluent.connect.http.HttpSinkConnector",
         "tasks.max":1,
-        "topics":"TBL_WEATHER_ALERT_APP_0020_RAIN_IS_HERE",
+        "topics":"STM_WEATHER_ALERT_APP_9000_NOTIFY",
         "key.converter": "org.apache.kafka.connect.storage.StringConverter",
         "value.converter": "org.apache.kafka.connect.storage.StringConverter",
         "confluent.topic.bootstrap.servers": "broker:9092",

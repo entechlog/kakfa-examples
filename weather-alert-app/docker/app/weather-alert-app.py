@@ -19,6 +19,7 @@ import os, sys, time
 import argparse
 import json
 import socket
+import datetime
 
 import schemas
 
@@ -134,7 +135,7 @@ def write_to_kafka(bootstrap_servers, schema_registry_url, topic_name, data):
 
     avroProducer = SerializingProducer(conf)
     
-    key=str(data['lat']) + '~' + str(data['lon'])
+    key=datetime.date.today() + '~' + str(data['lat']) + '~' + str(data['lon'])
     message = json.dumps(data, cls=DatetimeEncoder)
 
     print("Key Type                     : ", type(key))

@@ -24,7 +24,7 @@ app = faust.App(
     value_serializer='raw'
 )
 
-json_topic = app.topic('TBL_WEATHER_ALERT_APP_0020_RAIN_IS_HERE', value_type=bytes, key_type=str)
+json_topic = app.topic('STM_WEATHER_ALERT_APP_9000_NOTIFY', value_type=bytes, key_type=str)
 
 # Faust stream processing
 @app.agent(json_topic)

@@ -55,9 +55,14 @@ services:
     command: "bash -c -a 'echo Waiting for Kafka to be ready... && \
                        cub kafka-ready -b broker:9092 1 60 && \
                        sleep 5 && \
+                       set +e && \
                        kafka-topics --bootstrap-server broker:9092 --topic weather.alert.app.source --create --replication-factor 1 --partitions 1 && \
-                       kafka-topics --bootstrap-server broker:9092 --topic TBL_WEATHER_ALERT_APP_0020_RAIN_IS_HERE_TMP --create --replication-factor 1 --partitions 1 && \
-                       kafka-topics --bootstrap-server broker:9092 --topic TBL_WEATHER_ALERT_APP_0020_RAIN_IS_HERE --create --replication-factor 1 --partitions 1 && \
+                       kafka-topics --bootstrap-server broker:9092 --topic STM_WEATHER_ALERT_APP_0020_SEL_ATTRIBUTES --create --replication-factor 1 --partitions 1 && \
+                       kafka-topics --bootstrap-server broker:9092 --topic STM_WEATHER_ALERT_APP_0030_RAIN_IS_HERE --create --replication-factor 1 --partitions 1 && \
+                       kafka-topics --bootstrap-server broker:9092 --topic STM_WEATHER_ALERT_APP_0040_UNIQUE_KEY --create --replication-factor 1 --partitions 1 && \
+                       kafka-topics --bootstrap-server broker:9092 --topic TBL_WEATHER_ALERT_APP_0050_UNIQUE_KEY --create --replication-factor 1 --partitions 1 --config cleanup.policy=compact --config delete.retention.ms=100 --config segment.ms=100 --config min.cleanable.dirty.ratio=0.01 && \
+                       kafka-topics --bootstrap-server broker:9092 --topic STM_WEATHER_ALERT_APP_9000_NOTIFY --create --replication-factor 1 --partitions 1 && \
+                       set -e && \
                        echo Waiting a few seconds for topic creation to finish... && \
                        sleep 5'"
     environment:
@@ -89,15 +94,15 @@ services:
       KSQL_KSQL_SERVICE_ID: ${KSQL_KSQL_SERVICE_ID}
     restart: unless-stopped
 
-  ksqldb-cli:
-    image: confluentinc/ksqldb-cli:${CONFLUENT_VERSION_TAG}
-    container_name: ksqldb-cli
-    depends_on:
-      - broker
-      - ksqldb-server
-      - kafka-client
-    entrypoint: /bin/sh
-    tty: true
+#  ksqldb-cli:
+#    image: confluentinc/ksqldb-cli:${CONFLUENT_VERSION_TAG}
+#    container_name: ksqldb-cli
+#    depends_on:
+#      - broker
+#      - ksqldb-server
+#      - kafka-client
+#    entrypoint: /bin/sh
+#    tty: true
 
   kafka-connect:
     image: confluentinc/cp-kafka-connect:${CONFLUENT_VERSION_TAG}
