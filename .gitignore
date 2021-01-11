@@ -5,3 +5,5 @@
 logs
 __pycache__
 /**/docker/**/.env
+# Kafka to Snowpipe Demo
+/kafka-s3-snowpipe/.env

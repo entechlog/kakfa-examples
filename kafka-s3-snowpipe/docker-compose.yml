@@ -161,5 +161,5 @@ services:
         apk add curl;
         cub kafka-ready -b broker:9092 1 60;
         echo "===> Calling Mockaroo to generate data in loop forever"
-        while [ 1 -eq 1 ]; do curl "https://api.mockaroo.com/api/d5a195e0?count=5000&key=ff7856d0" | awk '{system("tr -dc \047[:alnum:]\047 </dev/urandom | head -c10"); printf ":%s\n", $$0;system("sleep 10");}' | kafkacat -b broker:9092 -P -K: -t mockaroo.sample.events;done
+        while [ 1 -eq 1 ]; do curl "https://api.mockaroo.com/api/${MOCKAROO_SCHEMA}?count=5000&key=${MOCKAROO_KEY}" | awk '{system("tr -dc \047[:alnum:]\047 </dev/urandom | head -c10"); printf ":%s\n", $$0;system("sleep 10");}' | kafkacat -b broker:9092 -P -K: -t mockaroo.sample.events;done
     restart: unless-stopped
