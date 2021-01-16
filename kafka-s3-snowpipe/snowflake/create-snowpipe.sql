@@ -74,3 +74,38 @@ TRUNCATE TABLE DEMO_DB.SNOWPIPE.MOCKAROO_RAW_TBL;
 
 -- Set pipe for refresh
 ALTER PIPE DEMO_DB.SNOWPIPE.MOCKAROO_SNOWPIPE REFRESH;
+
+-- Create Parsed table
+CREATE OR REPLACE TABLE DEMO_DB.SNOWPIPE.MOCKAROO_PARSED_TBL (
+         "log_ts" TIMESTAMP,
+         "path_name" STRING,
+         "file_name" STRING,
+		 "file_row_number" STRING,
+		 "id" STRING,
+		 "first_name" STRING,
+		 "last_name" STRING,
+         "gender" STRING,
+		 "company_name" STRING,
+		 "job_title" STRING,
+		 "slogan" STRING,
+		 "email" STRING
+);
+
+-- Create snowpipe for Parsed table
+CREATE PIPE DEMO_DB.SNOWPIPE.MOCKAROO_PARSED_SNOWPIPE AUTO_INGEST = TRUE AS COPY
+INTO DEMO_DB.SNOWPIPE.MOCKAROO_PARSED_TBL
+FROM (
+	SELECT current_timestamp::TIMESTAMP log_ts
+		,left(metadata$filename, 77) path_name
+		,regexp_replace(metadata$filename, '.*\/(.*)', '\\1') file_name
+		,metadata$file_row_number file_row_number
+		,$1:id
+		,$1:first_name
+		,$1:last_name
+		,$1:gender
+		,$1:company_name
+		,$1:job_title
+		,$1:slogan
+		,$1:email
+	FROM @DEMO_DB.SNOWPIPE.MOCKAROO_S3_STG
+	);
