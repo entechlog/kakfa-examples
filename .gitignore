@@ -7,3 +7,6 @@ __pycache__
 /**/docker/**/.env
 # Kafka to Snowpipe Demo
 /kafka-s3-snowpipe/.env
+# XML Demo
+/kafka-to-snowflake-xml/without-kafka/.env
+/kafka-to-snowflake-xml/with-kafka/.env
