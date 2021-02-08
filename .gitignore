@@ -12,6 +12,5 @@ __pycache__
 /kafka-to-snowflake-xml/with-kafka/.env
 # S3 Demo
 /kafka-s3/.env
-/kafka-s3/
 # DataDog Demo
 /kafka-to-datadog/.env
