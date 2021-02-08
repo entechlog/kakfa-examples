@@ -63,9 +63,17 @@ services:
         do
          TIMESTAMP=$$(echo `date +%s`)
          COUNT=$$(($${COUNT} + 1))
-         DATA=$$(echo {\"name\": \"perf.metric\", \"type\": \"rate\", \"timestamp\": $$TIMESTAMP, \"dimensions\": {\"host\": \"host1\", \"interval\": $$COUNT, \"tag1\": \"testing-data\"},\"values\": {\"doubleValue\": 5.639623848362502}})
+         HOST="\""server-$$(( ( RANDOM % 10 )  + 1 ))"\""
+         VALUE=$$(( ( RANDOM % 15 )  + 75))
+
+         DATA=$$(echo {\"name\": \"sample.metric\", \"type\": \"rate\", \"timestamp\": $$TIMESTAMP, \"dimensions\": {\"host\": $$HOST, \"interval\": 1, \"tag\": \"sample-events\"},\"values\": {\"doubleValue\": 5.639623848362502}})
          
-         echo $${DATA} | kafka-avro-console-producer --broker-list broker:9092 --property schema.registry.url=http://schema-registry:8081 --topic datadog-sample-events --property value.schema='{"name": "metric","type": "record","fields": [{"name": "name","type": "string"},{"name": "type","type": "string"},{"name": "timestamp","type": "long"}, {"name": "dimensions", "type": {"name": "dimensions", "type": "record", "fields": [{"name": "host", "type":"string"}, {"name":"interval", "type":"int"}, {"name": "tag1", "type":"string"}]}},{"name": "values","type": {"name": "values","type": "record","fields": [{"name":"doubleValue", "type": "double"}]}}]}'
+         echo $${DATA} | kafka-avro-console-producer --broker-list broker:9092 --property schema.registry.url=http://schema-registry:8081 --topic datadog-sample-events --property value.schema='{"name": "metric","type": "record","fields": [{"name": "name","type": "string"},{"name": "type","type": "string"},{"name": "timestamp","type": "long"}, {"name": "dimensions", "type": {"name": "dimensions", "type": "record", "fields": [{"name": "host", "type":"string"}, {"name":"interval", "type":"int"}, {"name": "tag", "type":"string"}]}},{"name": "values","type": {"name": "values","type": "record","fields": [{"name":"doubleValue", "type": "double"}]}}]}'
+
+         DATA=$$(echo {\"name\": \"backend.server_capacity\", \"type\": \"rate\", \"timestamp\": $$TIMESTAMP, \"dimensions\": {\"host\": $$HOST, \"interval\": 1, \"tag\": \"backendServerCapacity\"},\"values\": {\"doubleValue\": $$VALUE}})
+         
+         echo $${DATA} | kafka-avro-console-producer --broker-list broker:9092 --property schema.registry.url=http://schema-registry:8081 --topic backend-server-capacity --property value.schema='{"name": "metric","type": "record","fields": [{"name": "name","type": "string"},{"name": "type","type": "string"},{"name": "timestamp","type": "long"}, {"name": "dimensions", "type": {"name": "dimensions", "type": "record", "fields": [{"name": "host", "type":"string"}, {"name":"interval", "type":"int"}, {"name": "tag", "type":"string"}]}},{"name": "values","type": {"name": "values","type": "record","fields": [{"name":"doubleValue", "type": "double"}]}}]}'
+
          sleep 10
         done
 
@@ -112,7 +120,8 @@ services:
       CONNECT_CONFIG_PROVIDERS_FILE_CLASS: 'org.apache.kafka.common.config.provider.FileConfigProvider'
     volumes:
       - ./kafka-connect/secrets/connect-secrets.properties:/opt/confluent/secrets/connect-secrets.properties
-      - ./kafka-connect/scripts/create-datadog-sink.sh:/kafka-connect/scripts/create-datadog-sink.sh
+      - ./kafka-connect/scripts/create-datadog-sample-sink.sh:/kafka-connect/scripts/create-datadog-sample-sink.sh
+      - ./kafka-connect/scripts/create-datadog-metric-sink.sh:/kafka-connect/scripts/create-datadog-metric-sink.sh
     user: "1000:1000"
     command: 
       # In the command section, $ are replaced with $$ to avoid the error 'Invalid interpolation format for "command" option'
@@ -133,7 +142,9 @@ services:
         #
         sleep 5
         echo -e "\n ===> Creating Kafka Connectors"
-        /kafka-connect/scripts/create-datadog-sink.sh
+        /kafka-connect/scripts/create-datadog-sample-sink.sh
+        sleep 5
+        /kafka-connect/scripts/create-datadog-metric-sink.sh
         sleep infinity
         
   control-center:
