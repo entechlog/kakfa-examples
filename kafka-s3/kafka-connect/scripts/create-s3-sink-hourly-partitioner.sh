@@ -13,6 +13,7 @@ curl -i -X PUT -H  "Content-Type:application/json" \
         "s3.bucket.name":"${file:/opt/confluent/secrets/connect-secrets.properties:s3-BucketName}",
         "s3.part.size":"5242880",
         "s3.compression.type":"none",
+        "s3.region":"us-west-2",
         "flush.size":"1000",
         "rotate.interval.ms":"180000",
         "retry.backoff.ms":"1000",
@@ -25,7 +26,7 @@ curl -i -X PUT -H  "Content-Type:application/json" \
         "schema.compatibility": "NONE",
         "schemas.enable":false,
         "partitioner.class": "io.confluent.connect.storage.partitioner.HourlyPartitioner",
-        "path.format":"YYYY-MM-dd/HH",
-        "locale": "US",
-        "timezone": "UTC"
+        "locale": "en-US",
+        "timezone": "UTC",
+        "timestamp.extractor": "Record"
     }'
