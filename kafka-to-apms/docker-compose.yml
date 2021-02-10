@@ -74,6 +74,10 @@ services:
          
          echo $${DATA} | kafka-avro-console-producer --broker-list broker:9092 --property schema.registry.url=http://schema-registry:8081 --topic backend-server-capacity --property value.schema='{"name": "metric","type": "record","fields": [{"name": "name","type": "string"},{"name": "type","type": "string"},{"name": "timestamp","type": "long"}, {"name": "dimensions", "type": {"name": "dimensions", "type": "record", "fields": [{"name": "host", "type":"string"}, {"name":"interval", "type":"int"}, {"name": "tag", "type":"string"}]}},{"name": "values","type": {"name": "values","type": "record","fields": [{"name":"doubleValue", "type": "double"}]}}]}'
 
+         DATA=$$(echo [{\"metrics\":[{\"name\":\"cache.misses\"\,\"type\":\"count\"\,\"value\":15\,\"timestamp\":1612850198\,\"interval.ms\":10000\,\"attributes\":{\"cache.name\":\"myCache\"\,\"host.name\":\"dev.server.com\"}}]}])
+         
+         echo $${DATA} | kafka-console-producer --broker-list broker:9092 --topic newrelic-sample-events-no-schema
+
          sleep 10
         done
 
@@ -197,19 +201,20 @@ services:
 #        done
 #    restart: unless-stopped
 
-  kafkacat:
-    image: edenhill/kafkacat:1.6.0
-    container_name: kafkacat
-    entrypoint: 
-      - /bin/sh 
-      - -c 
-      - |
-        apk add jq;
-        apk add curl;
-        cub kafka-ready -b broker:9092 1 60;
-        echo "===> Generate data in loop forever";
-        while [ 1 -eq 1 ]; 
-          do TIMESTAMP=`date +%s`; 
-          echo '[{"metrics":[{"name":"cache.misses","type":"count","value":15,"timestamp":1612850198,"interval.ms":10000,"attributes":{"cache.name":"myCache","host.name":"dev.server.com"}}]}]' | jq -c | awk '{system("tr -dc \047[:alnum:]\047 </dev/urandom | head -c10"); printf ":%s\n", $$0;system("sleep 10");}' | kafkacat -b broker:9092 -P -K: -t newrelic-sample-events-no-schema;
-        done
-    restart: unless-stopped
+#  kafkacat:
+#    image: edenhill/kafkacat:1.6.0
+#    container_name: kafkacat
+#    entrypoint: 
+#      - /bin/sh 
+#      - -c 
+#      - |
+#        apk add jq;
+#        apk add curl;
+#        cub kafka-ready -b broker:9092 1 60;
+#        sleep 60
+#        echo "===> Generate data in loop forever";
+#        while [ 1 -eq 1 ]; 
+#          do;
+#          echo '[{"metrics":"cache.misses","type":"count","value":15,"timestamp":1612850198,"interval.ms":10000,"attributes":{"cache.name":"myCache","host.name":"dev.server.com"}}]' | jq -c | awk '{system("tr -dc \047[:alnum:]\047 </dev/urandom | head -c10"); printf ":%s\n", $$0;system("sleep 10");}' | kafkacat -b broker:9092 -P -K: -t newrelic-sample-events-no-schema;
+#        done
+#    restart: unless-stopped

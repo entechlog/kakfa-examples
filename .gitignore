@@ -13,4 +13,4 @@ __pycache__
 # S3 Demo
 /kafka-s3/.env
 # DataDog Demo
-/kafka-to-datadog/.env
+/kafka-to-apms/.env
