@@ -105,6 +105,7 @@ services:
       - ./kafka-connect/secrets/connect-secrets.properties:/opt/confluent/secrets/connect-secrets.properties
       - ./kafka-connect/scripts/create-s3-sink-hourly-partitioner.sh:/kafka-connect/scripts/create-s3-sink-hourly-partitioner.sh
       - ./kafka-connect/scripts/create-s3-sink-time-partitioner.sh:/kafka-connect/scripts/create-s3-sink-time-partitioner.sh
+      - ./kafka-connect/scripts/create-s3-sink-byte-array.sh:/kafka-connect/scripts/create-s3-sink-byte-array.sh
     user: "1000:1000"
     command: 
       # In the command section, $ are replaced with $$ to avoid the error 'Invalid interpolation format for "command" option'
@@ -128,6 +129,8 @@ services:
         /kafka-connect/scripts/create-s3-sink-hourly-partitioner.sh
         sleep 1
         /kafka-connect/scripts/create-s3-sink-time-partitioner.sh
+        sleep 1
+        /kafka-connect/scripts/create-s3-sink-byte-array.sh
         sleep infinity
         
   control-center:
@@ -166,3 +169,39 @@ services:
         echo "===> Calling Mockaroo to generate data in loop forever"
         while [ 1 -eq 1 ]; do curl "https://api.mockaroo.com/api/${MOCKAROO_SCHEMA}?count=5000&key=${MOCKAROO_KEY}" | awk '{system("tr -dc \047[:alnum:]\047 </dev/urandom | head -c10"); printf ":%s\n", $$0;system("sleep 10");}' | kafkacat -b broker:9092 -P -K: -t mockaroo.sample.events;done
     restart: unless-stopped
+
+  kafka-client:
+    image: confluentinc/cp-kafka-connect:${CONFLUENT_VERSION_TAG}
+    hostname: kafka-client
+    container_name: kafka-client
+    depends_on:
+      - zookeeper
+      - broker
+    command:
+      - bash 
+      - -c 
+      - |
+        echo "===> Waiting for Kafka to be ready... "
+        cub kafka-ready -b broker:9092 1 60
+        cd /bin
+        while [ 1 -eq 1 ]
+        do
+         TIMESTAMP=$$(echo `date +%s`)
+         COUNT=$$(($${COUNT} + 1))
+         HOST=""server-$$(( ( RANDOM % 10 )  + 1 ))""
+         VALUE=$$(( ( RANDOM % 15 )  + 75))
+
+         DATA=$$(echo "sample.metric | rate |" $$TIMESTAMP "|" $$HOST "| 1 | sample-events | " $$VALUE)
+                  
+         echo $${DATA} | kafka-console-producer --broker-list broker:9092 --topic sample-event-byte-array-no-schema
+
+         sleep 10
+        done
+
+    environment:
+      # The following settings are listed here only to satisfy the image's requirements.
+      # We override the image's `command` anyways, hence this container will not start a broker.
+      KAFKA_BROKER_ID: ignored
+      KAFKA_ZOOKEEPER_CONNECT: ignored
+      KAFKA_ADVERTISED_LISTENERS: ignored
+      
