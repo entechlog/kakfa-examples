@@ -74,7 +74,7 @@ services:
          
          echo $${DATA} | kafka-avro-console-producer --broker-list broker:9092 --property schema.registry.url=http://schema-registry:8081 --topic backend-server-capacity --property value.schema='{"name": "metric","type": "record","fields": [{"name": "name","type": "string"},{"name": "type","type": "string"},{"name": "timestamp","type": "long"}, {"name": "dimensions", "type": {"name": "dimensions", "type": "record", "fields": [{"name": "host", "type":"string"}, {"name":"interval", "type":"int"}, {"name": "tag", "type":"string"}]}},{"name": "values","type": {"name": "values","type": "record","fields": [{"name":"doubleValue", "type": "double"}]}}]}'
 
-         DATA=$$(echo [{\"metrics\":[{\"name\":\"cache.misses\"\,\"type\":\"count\"\,\"value\":15\,\"timestamp\":1612850198\,\"interval.ms\":10000\,\"attributes\":{\"cache.name\":\"myCache\"\,\"host.name\":\"dev.server.com\"}}]}])
+         DATA=$$(echo [{\"metrics\": [{\"name\": \"cache.misses\"\, \"type\": \"count\"\, \"value\": $$VALUE, \"timestamp\": $$TIMESTAMP, \"interval.ms\": 10000\, \"attributes\": {\"cache.name\": \"myCache\"\, \"host.name\": $$HOST}}]}])
          
          echo $${DATA} | kafka-console-producer --broker-list broker:9092 --topic newrelic-sample-events-no-schema
 
@@ -127,7 +127,6 @@ services:
       - ./kafka-connect/scripts/create-datadog-sample-sink.sh:/kafka-connect/scripts/create-datadog-sample-sink.sh
       - ./kafka-connect/scripts/create-datadog-metric-sink.sh:/kafka-connect/scripts/create-datadog-metric-sink.sh
       - ./kafka-connect/scripts/create-newrelic-metric-sink.sh:/kafka-connect/scripts/create-newrelic-metric-sink.sh
-    user: "1000:1000"
     command: 
       # In the command section, $ are replaced with $$ to avoid the error 'Invalid interpolation format for "command" option'
       - bash 
