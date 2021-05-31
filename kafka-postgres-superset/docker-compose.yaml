@@ -81,6 +81,7 @@ services:
     volumes:
       - ./kafka-connect/config/:/kafka-connect/config
       - ./kafka-connect/scripts/create-datagen-source.sh:/kafka-connect/scripts/create-datagen-source.sh
+      - ./kafka-connect/scripts/create-postgres-sink.sh:/kafka-connect/scripts/create-postgres-sink.sh
     command:
       # In the command section, $ are replaced with $$ to avoid the error 'Invalid interpolation format for "command" option'
       - bash 
@@ -88,6 +89,7 @@ services:
       - |
         echo "===> Installing connector plugins"
         confluent-hub install --no-prompt confluentinc/kafka-connect-datagen:0.4.0
+        confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:10.2.0
         #
         echo "===> Launching Kafka Connect worker"
         /etc/confluent/docker/run & 
@@ -101,6 +103,8 @@ services:
         sleep 5
         echo -e "\n ===> Creating Kafka Connectors"
         /kafka-connect/scripts/create-datagen-source.sh
+        sleep 5
+        /kafka-connect/scripts/create-postgres-sink.sh
         sleep infinity
 
   control-center:
@@ -154,6 +158,7 @@ services:
 
   postgres:
     image: postgres:${POSTGRES_VERSION_TAG}
+    container_name: postgres
     restart: always
     environment:
       - POSTGRES_USER=postgres
@@ -163,4 +168,17 @@ services:
         max-size: 10m
         max-file: "3"
     ports:
-      - "5438:5432"
+      - "5432:5432"
+    volumes:
+      - ./postgres-db/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./postgres-db/data.sql:/docker-entrypoint-initdb.d/2-data.sql
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    ports:
+      - "5050:80"
