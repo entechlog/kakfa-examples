@@ -83,8 +83,8 @@ services:
       - ./kafka-connect/scripts/create-datagen-source.sh:/kafka-connect/scripts/create-datagen-source.sh
     command:
       # In the command section, $ are replaced with $$ to avoid the error 'Invalid interpolation format for "command" option'
-      - bash
-      - -c
+      - bash 
+      - -c 
       - |
         echo "===> Installing connector plugins"
         confluent-hub install --no-prompt confluentinc/kafka-connect-datagen:0.4.0
@@ -98,7 +98,7 @@ services:
         done
         nc -vz kafka-connect 8083
         #
-        sleep 1
+        sleep 5
         echo -e "\n ===> Creating Kafka Connectors"
         /kafka-connect/scripts/create-datagen-source.sh
         sleep infinity

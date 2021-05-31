@@ -2,4 +2,5 @@
 
 cd /kafka-connect/config/
 
-curl -X POST -H "Content-Type: application/json" --data @connector_orders.config http://kafka-connect:8083/connectors
+echo -e "\n ===> Creating Orders Datagen ⏳⏳⏳"
+curl -X POST -H "Content-Type: application/json" --data @connector_orders.config http://localhost:8083/connectors && break  # substitute your command here
